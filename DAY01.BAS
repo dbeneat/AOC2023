@@ -4,12 +4,11 @@ REM  part 1
 REM ********
 
 
-OPEN "c:\AOC2023\data\test01b.txt" FOR INPUT AS #1
+OPEN "c:\AOC2023\data\input01.txt" FOR INPUT AS #1
 CLS
 sum = 0
 WHILE NOT EOF(1)
 LINE INPUT #1, toto$
-PRINT (MID$(toto$, 3, 20))
  first = 0
  FOR i = 1 TO LEN(toto$)
   char$ = MID$(toto$, i, 1)
@@ -31,8 +30,8 @@ REM  part 2
 REM ********
 
 
-OPEN "c:\AOC2023\data\input01.txt" FOR INPUT AS #1
-CLS
+SEEK #1, 1
+
 sum = 0
 WHILE NOT EOF(1)
 LINE INPUT #1, toto$
@@ -50,8 +49,6 @@ first = 0
   sum = sum + first * 10 + last
 WEND
 PRINT (sum)
-
-
 
 FUNCTION value (s$)
  v = VAL(LEFT$(s$, 1))
