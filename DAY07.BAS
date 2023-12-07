@@ -98,10 +98,6 @@ END FUNCTION
 SUB Shellsort
  SHARED nlines
  count = 0
- sorted = 0
- n = nlines
- spacing = nlines
-
 
  DIM gaps(8)
  gaps(1) = 701: gaps(2) = 301: gaps(3) = 132: gaps(4) = 57
