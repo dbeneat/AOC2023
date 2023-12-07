@@ -1,8 +1,10 @@
+DECLARE SUB Shellsort ()
 DECLARE SUB sort ()
 DECLARE FUNCTION compare! (s1$, s2$)
 DECLARE FUNCTION COMPARE5! (s1$, s2$)
 DECLARE FUNCTION typeofhand$ (s$, part2)
 DECLARE FUNCTION signature! (s$, part2)
+tic = TIMER
 CLS
 
 REM *** 84 is the greatest ASCII of card labels (letter T) ***
@@ -43,7 +45,8 @@ FOR i = 1 TO nlines
  bids(i) = VAL(MID$(line$, 7))
 NEXT i
 
-CALL sort
+REM *** Replace by "CALL sort" for bubblesort ***
+CALL Shellsort
 
 part1& = 0
 FOR i = 1 TO nlines
@@ -61,13 +64,17 @@ FOR i = 1 TO nlines
 NEXT
 
 values(ASC("J")) = 0
-CALL sort
+REM *** Replace by "CALL sort" for bubblesort ***
+CALL Shellsort
 
 part2& = 0
 FOR i = 1 TO nlines
  part2& = part2& + i * bids(i)
 NEXT i
 PRINT "part 2:"; part2&
+
+toc = TIMER
+PRINT "time:"; toc - tic
 
 FUNCTION compare (s1$, s2$)
  REM *** Returns:  -1 if the s1$ hand is < s2$                ***
@@ -87,6 +94,46 @@ FUNCTION compare (s1$, s2$)
  NEXT i
  compare = 0
 END FUNCTION
+
+SUB Shellsort
+ SHARED nlines
+ count = 0
+ sorted = 0
+ n = nlines
+ spacing = nlines
+
+
+ DIM gaps(8)
+ gaps(1) = 701: gaps(2) = 301: gaps(3) = 132: gaps(4) = 57
+ gaps(5) = 23: gaps(6) = 10: gaps(7) = 4: gaps(8) = 1
+
+ FOR n = 1 TO 8
+  gap = gaps(n)
+  FOR i = gap + 1 TO nlines
+   htemp$ = hands$(i)
+   btemp = bids(i)
+   j = i
+   continueloop = 1
+   WHILE j > gap AND continueloop
+    IF compare(hands$(j - gap), htemp$) > 0 THEN
+
+    hands$(j) = hands$(j - gap)
+    bids(j) = bids(j - gap)
+    j = j - gap
+    ELSE
+     continueloop = 0
+
+    END IF
+   WEND
+   hands$(j) = htemp$
+   bids(j) = btemp
+  NEXT i
+  count = count + 1
+  PRINT "count:"; count
+
+ NEXT n
+
+END SUB
 
 FUNCTION signature (s$, part2)
  ERASE bins
