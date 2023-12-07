@@ -1,7 +1,8 @@
+DECLARE SUB sort ()
 DECLARE FUNCTION compare! (s1$, s2$)
 DECLARE FUNCTION COMPARE5! (s1$, s2$)
-DECLARE FUNCTION typeofhand! (s$)
-DECLARE FUNCTION signature! (s$)
+DECLARE FUNCTION typeofhand$ (s$, part2)
+DECLARE FUNCTION signature! (s$, part2)
 CLS
 
 REM *** 84 is the greatest ASCII of card labels (letter T) ***
@@ -30,62 +31,43 @@ WHILE NOT EOF(1)
  nlines = nlines + 1
  LINE INPUT #1, line$
 WEND
-PRINT nlines
 SEEK #1, 1
 
-DIM hands$(nlines)
-DIM bids(nlines)
+DIM SHARED hands$(nlines)
+DIM SHARED bids(nlines)
 FOR i = 1 TO nlines
  LINE INPUT #1, line$
  h$ = LEFT$(line$, 5)
- t$ = STR$(typeofhand(h$))
+ t$ = typeofhand(h$, 0)
  hands$(i) = t$ + h$
  bids(i) = VAL(MID$(line$, 7))
 NEXT i
 
-
-count = 0
-
-sorted = 0
-WHILE sorted = 0
- sorted = 1
- FOR i = 1 TO nlines - 1
-  a$ = hands$(i)
-  b$ = hands$(i + 1)
-  IF compare(a$, b$) > 0 THEN
-   'PRINT "..."; a$; b$
-   hands$(i) = b$
-   hands$(i + 1) = a$
-   temp = bids(i)
-   bids(i) = bids(i + 1)
-   bids(i + 1) = temp
-   sorted = 0
-  END IF
- NEXT i
-
- 'FOR j = 1 TO nlines
- ' PRINT hands$(j);
- 'NEXT j
- 'PRINT
- 'FOR j = 1 TO nlines
- ' PRINT bids(j);
- 'NEXT j
- 'PRINT
- 'PRINT
- '
- 'SLEEP
- count = count + 1
- PRINT "count:"; count
- 'IF count = 20 THEN STOP
-
-WEND
-
+CALL sort
 
 part1& = 0
 FOR i = 1 TO nlines
  part1& = part1& + i * bids(i)
 NEXT i
 PRINT "part 1:"; part1&
+
+
+REM *** Part 2 starts here ***
+
+
+FOR i = 1 TO nlines
+ h$ = hands$(i)
+ MID$(hands$(i), 1) = typeofhand$(MID$(h$, 2), 1)
+NEXT
+
+values(ASC("J")) = 0
+CALL sort
+
+part2& = 0
+FOR i = 1 TO nlines
+ part2& = part2& + i * bids(i)
+NEXT i
+PRINT "part 2:"; part2&
 
 FUNCTION compare (s1$, s2$)
  REM *** Returns:  -1 if the s1$ hand is < s2$                ***
@@ -106,7 +88,7 @@ FUNCTION compare (s1$, s2$)
  compare = 0
 END FUNCTION
 
-FUNCTION signature (s$)
+FUNCTION signature (s$, part2)
  ERASE bins
  FOR i = 1 TO LEN(s$)
   n = ASC(MID$(s$, i, 1))
@@ -119,55 +101,122 @@ FUNCTION signature (s$)
    res = 10 * res + n
   END IF
  NEXT i
+ REM *** Normalize representation ***
+ IF res = 41 THEN
+  res = 14
+ ELSEIF res = 32 THEN
+  res = 23
+ ELSEIF res = 131 OR res = 311 THEN
+  res = 113
+ ELSEIF res = 212 OR res = 221 THEN
+  res = 122
+ ELSEIF res = 1121 OR res = 1211 OR res = 2111 THEN
+  res = 1112
+ END IF
+
+ REM *** Handle part 2 special cases ***
+ nj = bins(ASC("J"))
+ IF part2 = 1 AND nj > 0 THEN
+  IF res = 14 THEN
+   res = 5
+  ELSEIF res = 23 THEN
+   res = 5
+  ELSEIF res = 113 THEN
+    res = 14
+  ELSEIF res = 122 THEN
+   IF nj = 1 THEN
+    res = 23
+   ELSE
+    res = 14
+   END IF
+  ELSEIF res = 1112 THEN
+   res = 113
+  ELSEIF res = 11111 THEN
+   res = 1112
+  END IF
+ END IF
+
  signature = res
 END FUNCTION
 
-FUNCTION typeofhand (s$)
- sign = signature(s$)
+SUB sort
+ SHARED nlines
+ count = 0
+ sorted = 0
+ n = nlines
+ spacing = nlines
+
+ WHILE spacing > 1 OR sorted = 0
+  spacing = INT(spacing / 1.3)
+  IF spacing < 1 THEN spacing = 1
+  sorted = 1
+  FOR i = 1 TO nlines - spacing
+   a$ = hands$(i)
+   b$ = hands$(i + spacing)
+   IF compare(a$, b$) > 0 THEN
+    'PRINT "..."; a$; b$
+    hands$(i) = b$
+    hands$(i + spacing) = a$
+    temp = bids(i)
+    bids(i) = bids(i + spacing)
+    bids(i + spacing) = temp
+    sorted = 0
+   END IF
+  NEXT i
+  count = count + 1
+  PRINT "count:"; count; "spacing:"; spacing
+ 
+ WEND
+
+END SUB
+
+FUNCTION typeofhand$ (s$, part2)
+ sign = signature(s$, part2)
 
  REM *** Five of a kind ***
  IF sign = 5 THEN
-  typeofhand = 7
+  typeofhand$ = "7"
   EXIT FUNCTION
  END IF
 
  REM *** Four of a kind ***
- IF sign = 14 OR sign = 41 THEN
-  typeofhand = 6
+ IF sign = 14 THEN
+  typeofhand$ = "6"
   EXIT FUNCTION
  END IF
 
  REM *** Full house ***
- IF sign = 23 OR sign = 32 THEN
-  typeofhand = 5
+ IF sign = 23 THEN
+  typeofhand$ = "5"
   EXIT FUNCTION
  END IF
 
  REM *** Three of a kind ***
- IF sign = 113 OR sign = 131 OR sign = 311 THEN
-  typeofhand = 4
+ IF sign = 113 THEN
+  typeofhand$ = "4"
   EXIT FUNCTION
  END IF
 
  REM *** Two pairs ***
- IF sign = 122 OR sign = 212 OR sign = 221 THEN
-  typeofhand = 3
+ IF sign = 122 THEN
+  typeofhand$ = "3"
   EXIT FUNCTION
  END IF
 
  REM *** One pair ***
- IF sign = 1112 OR sign = 1121 OR sign = 1211 OR sign = 2111 THEN
-  typeofhand = 2
+ IF sign = 1112 THEN
+  typeofhand$ = "2"
   EXIT FUNCTION
  END IF
 
  REM *** High card ***
  IF sign = 11111 THEN
-  typeofhand = 1
+  typeofhand$ = "1"
   EXIT FUNCTION
  END IF
 
- PRINT "Unknown hand!"
+ PRINT "Unknown hand: "; s$
+ PRINT "signature:"; sign
  STOP
 
 END FUNCTION
