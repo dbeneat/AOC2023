@@ -1,7 +1,8 @@
+DECLARE FUNCTION lcm@ (a@, b@)
+DECLARE FUNCTION gcd@ (a@, b@)
 DECLARE FUNCTION nodeindex! (name$)
 tic = TIMER
 CLS
-
 
 HASHMAX = 2000
 DIM SHARED hash$(HASHMAX)
@@ -10,9 +11,12 @@ index = 1
 
 TABSIZE = 702
 DIM table(TABSIZE, 2)
-
+DIM istarget(TABSIZE)
+DIM sources(10)
+nsources = 0
 
 OPEN "c:\AOC2023\data\input08.txt" FOR INPUT AS #1
+
 LINE INPUT #1, prog$
 LINE INPUT #1, line$
 nlines = 0
@@ -27,32 +31,77 @@ WHILE NOT EOF(1)
  right = nodeindex(c$)
  table(from, 1) = left
  table(from, 2) = right
+ IF MID$(a$, 3, 1) = "A" THEN
+  nsources = nsources + 1
+  sources(nsources) = from
+ END IF
+ IF MID$(a$, 3, 1) = "Z" THEN
+  istarget(from) = 1
+ END IF
 WEND
-
 PRINT "Parsing ok"
 
-ip = 1
-node = nodeindex("AAA")
-target = nodeindex("ZZZ")
-count = 0
-WHILE node <> target AND count < 50000
+
+DIM memo(nlines)
+FOR j = 1 TO nlines
+ memo(j) = j
+NEXT j
+FOR ip = 1 TO LEN(prog$)
+ FOR j = 1 TO nlines
  c$ = MID$(prog$, ip, 1)
  IF c$ = "L" THEN
-  node = table(node, 1)
+  memo(j) = table(memo(j), 1)
  ELSE
-  node = table(node, 2)
+  memo(j) = table(memo(j), 2)
  END IF
- ip = ip + 1
- IF ip > LEN(prog$) THEN ip = 1
- count = count + 1
-WEND
+ NEXT j
+ PRINT "Caching"; ip; "/"; LEN(prog$)
+NEXT ip
+PRINT "Caching ok"
 
 
-PRINT "part 1:"; count
+DIM periods(nsources)
+FOR fantom = 1 TO nsources
+ count = 0
+ node = sources(fantom)
+ WHILE istarget(node) = 0 AND count < 50000
+  node = memo(node)
+  count = count + 1
+ WEND
+ periods(fantom) = count
+NEXT fantom
+
+PRINT "part 1:"; periods(1) * LEN(prog$)
+
+part2@ = periods(1)
+FOR i = 2 TO nsources
+ per@ = periods(i)
+ part2@ = lcm@(part2@, per@)
+NEXT i
+part2@ = part2@ * LEN(prog$)
+
+PRINT "part 2:"; part2@
 
 toc = TIMER
-
 PRINT "time:"; toc - tic
+
+FUNCTION gcd@ (a@, b@)
+ IF a@ < b@ THEN
+  temp@ = a@
+  a@ = b@
+  b@ = temp@
+ END IF
+ WHILE b@ > 0
+  temp@ = a@ MOD b@
+  a@ = b@
+  b@ = temp@
+ WEND
+ gcd@ = a@
+END FUNCTION
+
+FUNCTION lcm@ (a@, b@)
+ lcm = a@ * b@ / gcd@(a@, b@)
+END FUNCTION
 
 FUNCTION nodeindex (name$)
  SHARED HASHMAX
