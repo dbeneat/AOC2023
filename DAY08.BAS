@@ -42,36 +42,26 @@ WEND
 PRINT "Parsing ok"
 
 
-DIM memo(nlines)
-FOR j = 1 TO nlines
- memo(j) = j
-NEXT j
-FOR ip = 1 TO LEN(prog$)
- FOR j = 1 TO nlines
- c$ = MID$(prog$, ip, 1)
- IF c$ = "L" THEN
-  memo(j) = table(memo(j), 1)
- ELSE
-  memo(j) = table(memo(j), 2)
- END IF
- NEXT j
- PRINT "Caching"; ip; "/"; LEN(prog$)
-NEXT ip
-PRINT "Caching ok"
-
-
 DIM periods(nsources)
+
 FOR fantom = 1 TO nsources
  count = 0
+ ip = 1
  node = sources(fantom)
  WHILE istarget(node) = 0 AND count < 50000
-  node = memo(node)
+  c$ = MID$(prog$, ip, 1)
+  IF c$ = "L" THEN
+   node = table(node, 1)
+  ELSE
+   node = table(node, 2)
+  END IF
   count = count + 1
+  ip = ip + 1
+  IF ip > LEN(prog$) THEN ip = 1
  WEND
- periods(fantom) = count
+ IF sources(fantom) = nodeindex("AAA") THEN PRINT "part 1:"; count
+ periods(fantom) = count / LEN(prog$)
 NEXT fantom
-
-PRINT "part 1:"; periods(1) * LEN(prog$)
 
 part2@ = periods(1)
 FOR i = 2 TO nsources
