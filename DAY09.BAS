@@ -35,8 +35,8 @@ FOR i = 1 TO nbvalues
  part2@ = part2@ + reverse@(i)
 NEXT i
 
-PRINT "part1:", part1@
-PRINT "part2:", part2@
+PRINT "part1:"; part1@
+PRINT "part2:"; part2@
 
 toc = TIMER
 PRINT "time:"; toc - tic
