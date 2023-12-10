@@ -1,5 +1,6 @@
 DECLARE SUB enqueue (x!)
 DECLARE FUNCTION dequeue! ()
+tic = TIMER
 CLS
 
 TABSIZE = 140
@@ -9,7 +10,6 @@ DIM SHARED Q(QCAPACITY)
 Qstart = 0
 Qend = 0
 Qsize = 0
-
 
 OPEN "c:\AOC2023\data\input10.txt" FOR INPUT AS #1
 nlines = 0
@@ -30,6 +30,12 @@ WEND
 
 PRINT "Parsing ok"
 
+REM *********************
+REM  MODIFY THIS LINE
+REM  WHEN INPUT CHANGES
+REM *********************
+MID$(table$(starti), startj, 1) = "-"
+
 CALL enqueue(starti)
 CALL enqueue(startj)
 CALL enqueue(0)
@@ -46,28 +52,31 @@ WHILE Qsize
  IF depth > maxdepth THEN maxdepth = depth
  IF Qsize > maxQsize THEN maxQsize = Qsize
  REM *** Mark current node as visited ***
- 'PRINT "i="; i
- 'PRINT "j="; j
- 'PRINT "depth="; depth
  tile$ = MID$(table$(i), j, 1)
- 'PRINT "tile="; tile$
- MID$(table$(i), j) = "X"
+ 
+ IF tile$ = "|" THEN
+  MID$(table$(i), j) = "@"
+ ELSEIF tile$ = "L" OR tile$ = "7" THEN
+  MID$(table$(i), j) = "("
+ ELSEIF tile$ = "F" OR tile$ = "J" THEN
+  MID$(table$(i), j) = ")"
+ ELSEIF tile$ = "-" THEN
+  MID$(table$(i), j) = "X"
+ END IF
  REM *** left neighbour ***
  IF j > 1 THEN
   neigh$ = MID$(table$(i), j - 1, 1)
-  IF neigh$ = "-" OR neigh$ = "L" OR neigh$ = "F" THEN
+  IF INSTR("-J7", tile$) > 0 AND INSTR("-LF", neigh$) > 0 THEN
    'PRINT "left neighbour"
    CALL enqueue(i)
    CALL enqueue(j - 1)
    CALL enqueue(depth + 1)
   END IF
-
-
  END IF
  REM *** right neighbour ***
  IF j < W THEN
   neigh$ = MID$(table$(i), j + 1, 1)
-  IF neigh$ = "J" OR neigh$ = "-" OR neigh$ = "7" THEN
+  IF INSTR("-LF", tile$) > 0 AND INSTR("-J7", neigh$) > 0 THEN
    'PRINT "right neighbour"
    CALL enqueue(i)
    CALL enqueue(j + 1)
@@ -77,7 +86,7 @@ WHILE Qsize
  REM *** up neighbour ***
  IF i > 1 THEN
   neigh$ = MID$(table$(i - 1), j, 1)
-  IF neigh$ = "|" OR neigh$ = "7" OR neigh$ = "F" THEN
+    IF INSTR("|JL", tile$) > 0 AND INSTR("|7F", neigh$) > 0 THEN
    'PRINT "up neighbour"
    CALL enqueue(i - 1)
    CALL enqueue(j)
@@ -87,19 +96,59 @@ WHILE Qsize
  REM *** down neighbour ***
  IF i < H THEN
   neigh$ = MID$(table$(i + 1), j, 1)
-  IF neigh$ = "|" OR neigh$ = "L" OR neigh$ = "J" THEN
+  IF INSTR("|7F", tile$) > 0 AND INSTR("|JL", neigh$) > 0 THEN
   'PRINT "down neighbour"
    CALL enqueue(i + 1)
    CALL enqueue(j)
    CALL enqueue(depth + 1)
   END IF
  END IF
-
 WEND
 
 
 PRINT "part 1:"; maxdepth
 PRINT "Info: maxQsize="; maxQsize
+
+FOR i = 1 TO H
+ FOR j = 1 TO W
+  tile$ = MID$(table$(i), j, 1)
+  IF INSTR("@X()", tile$) = 0 THEN
+   MID$(table$(i), j, 1) = "."
+  END IF
+ NEXT j
+NEXT i
+
+part2 = 0
+FOR i = 1 TO H
+ stack$ = ""
+ parity = 0
+ FOR j = 1 TO W
+  tile$ = MID$(table$(i), j, 1)
+  IF tile$ = "(" OR tile$ = ")" THEN
+   stack$ = stack$ + tile$
+  END IF
+  n = LEN(stack$)
+  IF tile$ = "@" THEN parity = 1 - parity
+
+  IF n >= 2 THEN
+   a$ = MID$(stack$, n - 1, 1)
+   b$ = MID$(stack$, n, 1)
+   IF (a$ = "(" AND b$ = "(") OR (a$ = ")" AND b$ = ")") THEN
+    stack$ = LEFT$(stack$, n - 2)
+    parity = 1 - parity
+   END IF
+  END IF
+  
+  IF tile$ = "." AND parity = 1 THEN
+   MID$(table$(i), j, 1) = "I"
+   part2 = part2 + 1
+  END IF
+ NEXT j
+NEXT i
+
+PRINT "part 2:"; part2
+toc = TIMER
+PRINT "time:"; toc - tic
 
 FUNCTION dequeue
  SHARED QCAPACITY
