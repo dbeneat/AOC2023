@@ -12,9 +12,7 @@ DIM Fcol(450)
 H = 0
 OPEN "c:\AOC2023\data\input11.txt" FOR INPUT AS #1
 WHILE NOT EOF(1)
- H = H + 1
- LINE INPUT #1, line$
- map$(H) = line$
+ H = H + 1: LINE INPUT #1, line$: map$(H) = line$
 WEND
 W = LEN(map$(1))
 
