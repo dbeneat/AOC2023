@@ -37,8 +37,7 @@ FOR i = 1 TO W
  NEXT j
 NEXT i
 
-expansion = 0
-truedist = 0
+expansion = 0: truedist = 0
 FOR gal1 = 1 TO ngal
  FOR gal2 = gal1 + 1 TO ngal
   x1 = galx(gal1): x2 = galx(gal2)
@@ -52,10 +51,7 @@ FOR gal1 = 1 TO ngal
 NEXT gal1
 
 PRINT "part 1:"; truedist + expansion
-part2@ = truedist
-expansion@ = expansion
-part2@ = part2@ + 999999 * expansion@
-PRINT "part 2:"; part2@
+PRINT "part 2:"; truedist + 999999 * expansion
 
 toc = TIMER
 PRINT "time:"; toc - tic
