@@ -37,8 +37,6 @@ FOR i = 1 TO W
  NEXT j
 NEXT i
 
-
-
 expansion = 0
 truedist = 0
 FOR gal1 = 1 TO ngal
@@ -48,18 +46,7 @@ FOR gal1 = 1 TO ngal
   dx = ABS(x2 - x1)
   dy = ABS(y2 - y1)
   expansion = expansion + ABS(Fcol(x2) - Fcol(x1)) + Frow(y2) - Frow(y1)
-  IF x2 > x1 THEN
-   expansion = expansion - 1 + colsum(x2)
-  ELSEIF x2 < x1 THEN
-   expansion = expansion - 1 + colsum(x1)
-  END IF
-  IF y2 > y1 THEN
-   expansion = expansion - 1 + rowsum(y2)
-  END IF
-
-
   dist = ABS(dx) + ABS(dy)
- 
   truedist = truedist + dist
  NEXT gal2
 NEXT gal1
