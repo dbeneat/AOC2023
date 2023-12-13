@@ -63,7 +63,7 @@ FUNCTION linepos (pattern(), nbbits)
     a = a - 1
     b = b + 1
    WEND
-   IF ok = 1 AND fixed = 1 THEN
+   IF ok = 1 AND fixed = nbbits THEN
     linepos = i
     EXIT FUNCTION
    END IF
