@@ -1,5 +1,6 @@
 DECLARE FUNCTION f@ (start!, gp!)
 DECLARE SUB parseline (line$, s$, counts!(), nbgroups)
+tic = TIMER
 CLS
 
 OPEN "c:\AOC2023\data\input12.txt" FOR INPUT AS #1
@@ -33,6 +34,9 @@ WEND
 PRINT
 PRINT "part 1:"; part1@
 PRINT "part 2:"; part2@
+
+toc = TIMER
+PRINT "time:"; toc - tic
 
 FUNCTION f@ (start, gp)
  SHARED s$
