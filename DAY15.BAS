@@ -6,11 +6,12 @@ DECLARE SUB tryremove (lab$)
 tic = TIMER
 CLS
 
-OPEN "c:\AOC2023\data\input15.txt" FOR INPUT AS #1
-LINE INPUT #1, s$
-
 DIM SHARED focals(255, 6)
 DIM SHARED labels$(255, 6)
+
+
+OPEN "c:\AOC2023\data\input15.txt" FOR INPUT AS #1
+LINE INPUT #1, s$
 
 part1 = 0
 start = 1
