@@ -1,8 +1,6 @@
-DECLARE SUB propagate (x!, y!, dx!, dy!)
+DECLARE SUB propagate (BYVAL x!, BYVAL y!, dx!, dy!)
 STACK (20000)
 CLS
-
-
 DIM SHARED map$(110)
 
 H = 0
@@ -15,34 +13,68 @@ WHILE NOT EOF(1)
 WEND
 W = LEN(line$)
 PRINT W; H
-DIM SHARED nbdirs(H, W)
+DIM SHARED deposition(120, 120)
+DIM SHARED walls(120, 4)
 
 total = 0
 CALL propagate(1, 1, 1, 0)
-PRINT "total="; total
-'FOR y = 1 TO H
-' PRINT map$(y)
-'NEXT y
+PRINT "part 1:"; total
 
-SUB propagate (x, y, dx, dy)
+max = 0
+FOR y = 1 TO H
+ PRINT "y="; y;
+
+ 'PRINT "..."; deposition(y, 1); "..."; (deposition(y, 1) AND 1)
+ IF walls(y, 1) = 0 THEN
+  total = 0
+  ERASE deposition
+  CALL propagate(1, y, 1, 0)
+  IF total > max THEN max = total
+ END IF
+ IF walls(y, 2) = 0 = 0 THEN
+  total = 0
+  ERASE deposition
+  CALL propagate(W, y, -1, 0)
+  IF total > max THEN max = total
+ END IF
+NEXT y
+
+FOR x = 1 TO W
+ PRINT "x="; x;
+ IF walls(y, 3) = 0 THEN
+  total = 0
+  ERASE deposition
+  CALL propagate(x, 1, 0, 1)
+  IF total > max THEN max = total
+ END IF
+ IF walls(y, 4) = 0 THEN
+  total = 0
+  ERASE deposition
+  CALL propagate(x, H, 0, -1)
+  IF total > max THEN max = total
+ END IF
+NEXT x
+PRINT
+PRINT "part 2:"; max
+
+SUB propagate (BYVAL x, BYVAL y, dx, dy)
  SHARED W, H, total
  WHILE x >= 1 AND x <= W AND y >= 1 AND y <= H
   tile$ = MID$(map$(y), x, 1)
-  code = nbdirs(y, x)
+  code = deposition(y, x)
+  IF dx = -1 THEN dircode = 1
+  IF dx = 1 THEN dircode = 2
+  IF dy = -1 THEN dircode = 4
+  IF dy = 1 THEN dircode = 8
   'PRINT code;
+  IF code AND dircode THEN EXIT SUB
+  IF x = 1 AND dx = -1 THEN walls(x, 1) = 1
+  IF x = W AND dx = 1 THEN walls(x, 2) = 1
+  IF y = 1 AND dy = -1 THEN walls(x, 3) = 1
+  IF y = H AND dy = 1 THEN walls(x, 4) = 1
   IF code = 0 THEN total = total + 1
-  condition = (dx = -1 AND (code AND 1))
-  condition = condition OR (dx = 1 AND (code AND 2))
-  condition = condition OR (dy = -1 AND (code AND 4))
-  condition = condition OR (dy = 1 AND (code AND 8))
-  IF condition THEN EXIT SUB
-  'PRINT "j";
-  'nbdirs(y, x) = nbdirs(y, x) + 1
-  IF dx = -1 THEN nbdirs(y, x) = code OR 1
-  IF dx = 1 THEN nbdirs(y, x) = code OR 2
-  IF dy = -1 THEN nbdirs(y, x) = code OR 4
-  IF dy = 1 THEN nbdirs(y, x) = code OR 8
-  IF tile$ = "." THEN MID$(map$(y), x, 1) = "#"
+  deposition(y, x) = deposition(y, x) OR dircode
+  'IF tile$ = "." THEN MID$(map$(y), x, 1) = "#"
  
   IF tile$ = "|" AND dy = 0 THEN
    CALL propagate(x, y - 1, 0, -1)
@@ -58,17 +90,10 @@ SUB propagate (x, y, dx, dy)
    CALL propagate(x + dy, y + dx, dy, dx)
    EXIT SUB
   END IF
-
   IF tile$ = "/" THEN
    CALL propagate(x - dy, y - dx, -dy, -dx)
    EXIT SUB
   END IF
-
-
-
-
-
-
 
   x = x + dx
   y = y + dy
