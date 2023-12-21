@@ -60,13 +60,12 @@ part2@ = n@ * n@ * fulleven@
 part2@ = part2@ + (n@ + 1) * (n@ + 1) * fullodd@
 part2@ = part2@ + n@ * cornereven@ - (n@ + 1) * cornerodd@
 
-
 PRINT "part 1:"; part1
 PRINT "part 2:"; part2@
 
-
 toc = TIMER
 PRINT "time:"; toc - tic
+
 
 FUNCTION dequeue
  SHARED QCAPACITY
@@ -126,10 +125,7 @@ SUB walk (x, y, k)
    END IF
   END IF
 
-
-
  WEND
-
 
 END SUB
 
