@@ -5,7 +5,7 @@ DECLARE SUB parse (line$, i!)
 tic = TIMER
 CLS
 
-OPEN "c:\AOC2023\data\test22.txt" FOR INPUT AS #1
+OPEN "c:\AOC2023\data\input22.txt" FOR INPUT AS #1
 DIM SHARED table(1295, 6)
 DIM sorted(1295)
 DIM SHARED buffer(9, 9)
