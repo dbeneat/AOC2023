@@ -57,9 +57,24 @@ FOR y = 1 TO H
  NEXT x
 NEXT y
 
-
 start = ASC(MID$(map$(1), 2)) - 128
 finish = ASC(MID$(map$(H), W - 1)) - 128
+
+
+REM Output graph data
+REM (external processing for part 2)
+
+OPEN "c:\AOC2023\graph.txt" FOR OUTPUT AS #2
+PRINT #2, start; finish
+PRINT #2, nbdoors; reg
+FOR i = 1 TO nbdoors
+ PRINT #2, doors(i, 1); doors(i, 2)
+NEXT i
+FOR i = 1 TO reg
+ PRINT #2, lengths(i)
+NEXT i
+CLOSE #2
+
 niter = 0
 enqueue start
 enqueue lengths(start)
