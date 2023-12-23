@@ -21,7 +21,6 @@ DIM SHARED doors(150, 2)
 
 reg = 0
 
-
 OPEN "c:\AOC2023\data\input23.txt" FOR INPUT AS #1
 
 H = 0
@@ -29,9 +28,7 @@ WHILE NOT EOF(1)
  H = H + 1
  LINE INPUT #1, line$
  map$(H) = line$
- 'PRINT LEFT$(line$, 70)
  FOR j = 1 TO LEN(line$)
- IF INSTR("<>^v.#", MID$(line$, j, 1)) = 0 THEN PRINT "alerte": STOP
  IF INSTR("<>^v", MID$(line$, j, 1)) THEN
   nbdoors = nbdoors + 1
  END IF
@@ -39,24 +36,7 @@ WHILE NOT EOF(1)
 WEND
 W = LEN(line$)
 
-'PRINT W; H; nbdoors
-
-
 walk 2, 1, 0
-
-'OPEN "c:\AOC2023\aaa.txt" FOR OUTPUT AS #2
-'FOR i = 1 TO H
-' PRINT #2, map$(i)
-'NEXT i
-
-
-'FOR i = 1 TO H
-' PRINT LEN(map$(i)); ".";
-'NEXT i
-
-'FOR i = 0 TO 30
-' PRINT i; ":"; lengths(i);
-'NEXT i
 
 nbdoors = 0
 FOR y = 1 TO H
@@ -77,28 +57,18 @@ FOR y = 1 TO H
   END IF
  NEXT x
 NEXT y
-'PRINT nbdoors
 
-'FOR i = 1 TO nbdoors
-' PRINT doors(i, 1); "->"; doors(i, 2); " ";
-'NEXT i
 
 start = ASC(MID$(map$(1), 2)) - 128
 finish = ASC(MID$(map$(H), W - 1)) - 128
-'PRINT
-'PRINT start; finish
-
 niter = 0
 enqueue start
 enqueue lengths(start)
-
 longest = 0
-
 WHILE Qsize > 0 AND niter < 3000
  niter = niter + 1
  a = dequeue
  d = dequeue
- 'PRINT "niter"; niter; a; d
  FOR i = 1 TO nbdoors
   IF doors(i, 1) = a THEN
    b = doors(i, 2)
@@ -168,7 +138,6 @@ SUB walk (BYVAL x, BYVAL y, BYVAL dist)
  
  SHARED W, H
  IF y > H THEN EXIT SUB
- 'IF region > 127 THEN PRINT "ALERTE": EXIT SUB
  IF MID$(map$(y), x, 1) = "." THEN
   region = newregion
   MID$(map$(y), x, 1) = CHR$(128 + region)
@@ -176,7 +145,6 @@ SUB walk (BYVAL x, BYVAL y, BYVAL dist)
  END IF
 
  WHILE nbneighbors(x, y) = 1
-  'PRINT x; y; nbneighbors(x, y): SLEEP
   IF istile(x - 1, y, ".") THEN
    x = x - 1
   ELSEIF istile(x + 1, y, ".") THEN
@@ -190,14 +158,6 @@ SUB walk (BYVAL x, BYVAL y, BYVAL dist)
   MID$(map$(y), x, 1) = CHR$(128 + region)
   lengths(region) = lengths(region) + 1
  WEND
-
- IF dist > 30 THEN PRINT "AAAA": STOP: EXIT SUB
-
- 'IF istile(x - 1, y, ".") THEN CALL walk(x - 1, y, dist + 1)
- 'IF istile(x + 1, y, ".") THEN CALL walk(x + 1, y, dist + 1)
- 'IF istile(x, y - 1, ".") THEN CALL walk(x, y - 1, dist + 1)
- 'IF istile(x, y + 1, ".") THEN CALL walk(x, y + 1, dist + 1)
- 
 
  IF istile(x - 1, y, "<") THEN CALL walk(x - 2, y, dist + 1)
  IF istile(x + 1, y, ">") THEN CALL walk(x + 2, y, dist + 1)
