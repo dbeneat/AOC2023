@@ -3,7 +3,6 @@ DECLARE FUNCTION dequeue! ()
 DECLARE FUNCTION nbneighbors! (x!, y!)
 DECLARE FUNCTION newregion! ()
 DECLARE FUNCTION istile! (x!, y!, t$)
-DECLARE FUNCTION walkable! (x!, y!)
 DECLARE SUB walk (BYVAL x, BYVAL y, BYVAL dist)
 
 tic = TIMER
@@ -165,14 +164,4 @@ SUB walk (BYVAL x, BYVAL y, BYVAL dist)
  IF istile(x, y + 1, "v") THEN CALL walk(x, y + 2, dist + 1)
 
 END SUB
-
-FUNCTION walkable (x, y)
-SHARED W, H
- IF x < 1 OR x > W OR y < 1 OR y > H THEN walkable = 0: EXIT FUNCTION
- IF MID$(map$(y), x, 1) = "." THEN
-  walkable = 1
- ELSE
-  walkable = 0
- END IF
-END FUNCTION
 
